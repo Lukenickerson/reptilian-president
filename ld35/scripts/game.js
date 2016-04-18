@@ -17,6 +17,8 @@ RocketBoots.loadComponents([
 	var GROUND_Y = 12;
 	var CRUST_Y = 20;
 
+	var STARTING_POP = 80;
+
 	var MELT_RATE = 1.4;
 	var DECIDED_STRENGTH = 0.8;
 	var VERY_FEARFUL = 0.7;
@@ -515,6 +517,7 @@ RocketBoots.loadComponents([
 	g.world.min.y = 0;
 	g.world.max.y = WORLD_Y;
 	g.world.fearPercent = 1;
+	g.world.citizenCensus = STARTING_POP;
 
 	g.sky = new rb.Entity({
 		name: "Sky",
@@ -582,7 +585,7 @@ RocketBoots.loadComponents([
 			addRandomPerson(i);
 		}
 	}
-	addRandomPeople(80);
+	addRandomPeople(STARTING_POP);
 
 //==== Make the other two candidates
 
@@ -613,7 +616,7 @@ RocketBoots.loadComponents([
 		}
 	];
 	function candidateElectioneering () {
-		g.world.loopOverEntities("people", function(i, ent){
+		g.world.loopOverEntities("citizens", function(i, ent){
 			var DELTABASE = 0.05;
 			var delta = DELTABASE;
 			var roll = g.dice.roll1d(100);
@@ -642,11 +645,13 @@ RocketBoots.loadComponents([
 	function collectPollingNumbers () {
 		var pop = getPopulation();
 		var fearCount = 0;
+		var census = 0;
 		$.each(g.parties, function(i, party){
 			party.votes = 0;
 			party.votePercent = 0;
 		});
-		g.world.loopOverEntities("people", function(i, ent){
+		g.world.loopOverEntities("citizens", function(i, ent){
+			census++;
 			if (ent.isCandidate) {
 				ent.partyPreferenceStrength = 1;
 				return;
@@ -670,7 +675,6 @@ RocketBoots.loadComponents([
 			} else {
 
 			}
-			
 
 			if (ent.fear > FEARFUL) {
 				fearCount++;
@@ -688,10 +692,12 @@ RocketBoots.loadComponents([
 			g.notifiedOfWin = true;
 		}
 		//console.log(s);
+		g.world.citizenCensus = census;
 		g.world.fearPercent = Math.ceil((fearCount / pop) * 100);
 	}
 	function getPopulation () {
-		return g.world.entities.citizens.length;
+		//return g.world.entities.citizens.length;
+		return g.world.citizenCensus;
 	}
 
 //==== Make the Character
@@ -802,16 +808,9 @@ RocketBoots.loadComponents([
 		*/
 	}
 
-	function drawHats () {
-		g.world.loopOverEntities("people", function(i, ent){
-
-		});
-	}
-
 	g.loop = new rb.Looper(function(){
 		g.stage.draw();
 		drawStats();
-		drawHats();
 	});
 	g.meltingLoop = new rb.Looper(function(){
 		g.character.melt(MELT_RATE);

@@ -13,6 +13,8 @@
 
 	<header class="stateHeader goto" data-state="mainmenu">
 		<h1>Reptilian President</h1>
+		<div>Loading... If you're seeing this message for too long, there may have been an error.</div>
+		<p>Please reload the page (f5) a few times, that oughta fix it.</p>
 	</header>
 	<div class="state boot">
 		Booting Up
@@ -20,89 +22,10 @@
 	<div class="state preload">
 		<h2>Loading</h2>
 	</div>
-	<!--
-	<section class="state mainmenu">
-		<h2>Main Menu</h2>
-		<nav>
-		<ul>
-			<li><button type="button" class="goto non-disk play" data-state="game">
-				Play</button></li>
-			<li><button type="button" class="goto disk has-game continue" data-state="game">
-				Continue</button></li>
-			<li><button type="button" class="goto disk has-game save" data-state="save">
-				Save</button></li>
-			<li><button type="button" class="goto disk new" data-state="new">
-				New</button></li>
-			<li><button type="button" class="goto disk load" data-state="load">
-				Load</button></li>
-			<li><button type="button" class="goto settings" data-state="settings">
-				Settings</button></li>
-			<li><button type="button" class="goto help" data-state="help">
-				Help</button></li>
-			<li><button type="button" class="goto credits" data-state="credits">
-				Credits</button></li>
-			<li><button type="button" class="goto share" data-state="share">
-				Share</button></li>
-		</ul>
-		</nav>
-		
-	</section>
-	<section class="state help">
-		<h2>Help</h2>
-		<nav>
-			<button type="button" class="goto" data-state="mainmenu">Back</button>
-		</nav>
-		<p>
-			[HELP TEXT GOES HERE]
-		</p>
-		<p>
-			For help, please see the 
-			<a href="">Ludum Dare entry page</a>
-			or 
-			<a href="">Tumblr #LDJAM</a>.
-		</p>
-	</section>
-	<section class="state settings">
-		<h2>Settings</h2>
-		<nav>
-			<button type="button" class="goto" data-state="mainmenu">Back</button>
-			<button type="button" class="toggleSound">Toggle Sound</button>
-		</nav>
-	</section>
-	<section class="state credits">
-		<h2>Credits</h2>
-		<nav>
-			<button type="button" class="goto" data-state="mainmenu">Back</button>
-		</nav>
-		<p>
-			[CREDITS]
-		</p>
-		<nav>
-			<button type="button" class="">Follow on Twitter</button>
-			<button type="button" class="">Follow on Tumblr</button>
-		</nav>
-
-	</section>
-	<section class="state share">
-		<h2>Share</h2>
-		<nav>
-			<button type="button" class="goto" data-state="mainmenu">Back</button>
-			<button type="button" class="">Tweet on Twitter</button>
-			<button type="button" class="">Email to a friend</button>
-		</nav>
-		<p>
-			Thank you for sharing this game!
-		</p>
-	</section>
-	-->
 	
 	<div class="state game">
 		<h2>Reptilian President</h2>
-		<!--
-		<nav>
-			<button type="button" class="goto" data-state="mainmenu">Back</button>
-		</nav>
-		-->
+
 		<div id="game-stage" class="stage"></div>
 		<div class="gameInfo instructions">
 			<p>Left/Right/A/D = Movement</p>
@@ -124,6 +47,7 @@
 		<div class="credits gameInfo">
 			Developed in 48 hours for the
 			<a href="http://ludumdare.com/compo/ludum-dare-35/" target="_blank">Ludum Dare 35 game jam (theme "Shapeshift")</a>
+			and <a href="https://itch.io/jam/lowrezjam2016" target="_blank">Low Rez Jam (64x64 px)</a> 
 
 			<br>
 			by Luke Nickerson 
@@ -136,7 +60,7 @@
 				RocketBoots web game starter kit
 			</a>
 			<br>
-			&copy; 2016
+			Version 1.01 | &copy; 2016
 		</div>		
 		<!--
 		<div class="game-controls">
@@ -148,25 +72,7 @@
 		</div>
 		-->
 	</div>
-	<!--
-	<footer class="stateFooter">
-		Developed in 48 hours for the
-		<a href="">Ludum Dare 35 game jam (theme "Shapeshift")</a>
 
-		<br>
-		by Luke Nickerson 
-		<a href="">@deathraygames</a>
-		<br>
-		using the
-		<a href="https://github.com/Lukenickerson/rocketboots" 
-			target="_blank"
-			title="RocketBoots - Starter Kit for Web Games - visit the GitHub repo">
-			RocketBoots web game starter kit
-		</a>
-		<br>
-		&copy; 2016
-	</footer>
-	-->
 
 
 <script src="scripts/rocketboots/core.js"></script>
