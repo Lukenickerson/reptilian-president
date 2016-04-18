@@ -86,3 +86,6 @@ header {
 .gameInfo a:visited {
 	color: #CBDBFC;
 }
+.gameInfo a:hover {
+	color: #fff;
+}
