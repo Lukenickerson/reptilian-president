@@ -167,11 +167,13 @@
 	Entity.prototype.addNewEntity = Entity.prototype.putNewIn;	
 	Entity.prototype.removeEntity = Entity.prototype.takeOut;
 
-	// Bring in a pointer to the Coords class from RocketBoots
-	Entity.prototype.Coords = (typeof RocketBoots.Coords == "function") ? RocketBoots.Coords : Coords;
+	function initEntityPrototype () {
+		// Bring in a pointer to the Coords class from RocketBoots
+		Entity.prototype.Coords = (typeof RocketBoots.Coords == "function") ? RocketBoots.Coords : Coords;
+	}
 	
 	// Install as RocketBoots component
 	if (typeof RocketBoots == "object") {
-		RocketBoots.installComponent("entity", "Entity", Entity);
+		RocketBoots.installComponent("entity", "Entity", Entity, ["Coords"], initEntityPrototype);
 	} else window.Entity = Entity;
 })();

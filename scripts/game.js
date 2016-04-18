@@ -1,15 +1,15 @@
 RocketBoots.loadComponents([
 	"coords",
+	"entity",
 	"sound_cannon",
 	"image_overseer",
 	"state_machine",
 	"dice",
 	"looper",
-	"entity",
-	"world",
-	"stage",
 	"physics",
-	"keyboard"
+	"keyboard",
+	"world",
+	"stage"
 ]).ready(function(rb){
 	var TWO_PI = 2 * Math.PI;
 	var WORLD_X = 640;
@@ -59,12 +59,14 @@ RocketBoots.loadComponents([
 	g.coords = new rb.Coords();
 	
 	g.state.transition("preload");
+	/*
 	g.images.load({
 		"dirt1" : "dirt1.png"
 		,"dirt2" : "dirt2.png"
 		,"grass1" : "grass1.png"
 		,"grass2" : "grass2.png"
 	});
+	*/
 	g.state.transition("mainmenu");
 	
 

@@ -56,15 +56,48 @@ var RocketBoots = {
 		t.parentNode.insertBefore(s, t);
 		return this;
 	},
-	installComponent : function(fileName, componentClassName, componentClass){
+	installComponent : function(fileName, componentClassName, componentClass, requirements, callback){
 		var o = this;
-		if (typeof o.components[fileName] == "undefined") {
-			o.components[fileName] = new o.Component(fileName);
+		if (!o.areComponentsLoaded(requirements)) {
+			console.warn("Component(s) missing", requirements);
+			var compTimer = window.setTimeout(function(){ 
+				o.installComponent(fileName, componentClassName, componentClass, requirements, callback);
+			}, 10000);
+		} else {
+			if (typeof o.components[fileName] == "undefined") {
+				o.components[fileName] = new o.Component(fileName);
+			}
+			if (typeof callback === "function") {
+				callback();
+			}
+			o.components[fileName].name = componentClassName;
+			o.components[fileName].isInstalled = true;
+			o[componentClassName] = componentClass;
 		}
-		o.components[fileName].name = componentClassName;
-		o.components[fileName].isInstalled = true;
-		o[componentClassName] = componentClass;
 		return this;
+	},
+	getComponentByName: function (componentName) {
+		var o = this;
+		for (var cKey in o.components) {
+			if (o.components[cKey].name == componentName) {
+				return o.components[cKey];
+			}
+		};
+		return;
+	},
+	areComponentsLoaded: function (componentNameArr) {
+		var o = this, areLoaded = true;
+		if (typeof componentNameArr !== 'object') {
+			return areLoaded;
+		}
+		for (var i = 0; i < componentNameArr.length; i++) {
+			if (!o.isComponentInstalled(componentNameArr[i])) { areLoaded = false; }
+		};
+		return areLoaded;
+	},
+	isComponentInstalled: function (componentName) {
+		var comp = this.getComponentByName(componentName);
+		return (comp && comp.isInstalled);
 	},
 	loadComponents : function(arr){
 		var o = this;
@@ -123,7 +156,7 @@ var RocketBoots = {
 		if (typeof attempt == "undefined") attempt = 0;
 		attempt++;
 		//console.log("RB Init", attempt);
-		if (attempt > 20) {
+		if (attempt > 200) {
 			console.error("Could not initialize RocketBoots");
 			return false;
 		}
@@ -153,7 +186,7 @@ var RocketBoots = {
 				// Try again
 				var initTimer = window.setTimeout(function(){ 
 					o.init(attempt);
-				}, 10);
+				}, ((attempt - 1) * 10));
 				return false;
 			}
 		}
@@ -192,7 +225,7 @@ RocketBoots.Game.prototype._addDefaultComponents = function(options){
 
 RocketBoots.Game.prototype._addComponent = function(gameCompName, componentClass, arg){
 	if (RocketBoots.hasComponent(componentClass)) {
-		console.log("RB adding component", gameCompName, "to the game using class", componentClass, "and arguments:", arg);
+		//console.log("RB adding component", gameCompName, "to the game using class", componentClass, "and arguments:", arg);
 		this[gameCompName] = new RocketBoots[componentClass](arg);
 	} else {
 		//console.warn(componentClass, "not found as a RocketBoots component");
