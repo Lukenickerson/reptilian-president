@@ -20,7 +20,6 @@
 
 		this.name 			= options.name || null;
 		this.groups			= [];
-		this.groupIndices 	= {};
 		this.world 			= world;
 		this.stageOffset 	= new this.Coords(0,0); // for minor pixel offsets
 		this.pos 			= new this.Coords(pos.x, pos.y);
@@ -45,13 +44,8 @@
 			after: null
 		};
 		// Entity Can Contain Another
-		this.tags = ["all", "physical", "movable", "physics"];
-		this.contains = { 
-			"all" : [],
-			"physical" : [],
-			"movable" : [],
-			"physics" : []
-		};
+		this.entityGroups = [];
+		this.entities = { };
 	}
 	// Sets
 	Entity.prototype.setSize = function(x,y){
@@ -63,7 +57,7 @@
 	Entity.prototype.getType = function(){
 		return this.groups[0];
 	}
-	Entity.prototype.isInGroup = function(group){
+	Entity.prototype.isInGroup = function (group) {
 		return (this.groups.indexOf(group) == -1) ? false : true;
 	}
 	Entity.prototype.getHeadPos = function(){
@@ -91,7 +85,7 @@
 				} else {
 					ent.groups.push(grp);
 				}
-				ent.groupIndices[grp] = groupIndex;
+				//ent.groupIndices[grp] = groupIndex;
 			} else {
 				console.warn('Entity already in group', grp, ent, this.groups);
 			}
@@ -127,35 +121,42 @@
 		return typeIds;
 	};
 
+	Entity.prototype.findGroupIndex = function (group) {	// 'group' is an array of entities to look in (haystack), 'this' is the needle
+		var i = group.length;
+		while (i--) {
+			if (group[i] === this) {
+				return i;
+			}
+		}
+		return -1;
+	};
+
 	Entity.prototype.takeOut = function(ent, remGroups){
+		var remGroupName = "", remGroupIndex = -1, group;
 		//console.log("Remove groups", remGroups, typeof remGroups);
-		if (typeof remGroups == "string") remGroups = [remGroups];
-		else if (typeof remGroups == "undefined") remGroups = ["all"];
+		if (typeof remGroups == "string") { remGroups = [remGroups]; }
+		else if (typeof remGroups == "undefined") { remGroups = ["all"]; }
 		// Remove "all" groups?
 		if (remGroups.indexOf("all") != -1) {	
 			remGroups = ent.groups.join("/").split("/");
 		}
 		console.log("Take", (ent.name || "entity"), "out of groups", remGroups, ent.groups);
-		
-		var remGroup = "", remGroupIndex = -1;
+
 		// Loop over groups to remove
 		for (var g = 0; g < remGroups.length; g++){
-			remGroup = remGroups[g];
-			if (ent.isInGroup(remGroup)) {
+			remGroupName = remGroups[g];
+			if (ent.isInGroup(remGroupName)) {
 				
-				remGroupIndex = ent.groupIndices[remGroup];
-				//console.log("Removing", remGroup, remGroupIndex);
+				group = this.entities[remGroupName];
+
+				remGroupIndex = ent.findGroupIndex(group);
+				
 				// Remove from group array
-				//this.entities[remGroup].splice(remGroupIndex, 1);
-				// ^ can't splice this out or all the indices get messed up
-				// Another option:
-				this.entities[remGroup][remGroupIndex] = null;
-				// FIXME *** ^ This might cause memory issues??
+				//group[remGroupIndex] = null;
+				group.splice(remGroupIndex, 1);
 
 				// Remove from entity's properties
-				//console.log(ent.groups, ent.groups.indexOf(remGroup));
-				ent.groups.splice( ent.groups.indexOf(remGroup), 1 );
-				delete ent.groupIndices[remGroup];
+				ent.groups.splice( ent.groups.indexOf(remGroupName), 1 );
 			}
 		}
 		return ent;
