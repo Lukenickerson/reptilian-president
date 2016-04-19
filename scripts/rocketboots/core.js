@@ -1,40 +1,20 @@
 var RocketBoots = {
+
 	isInitialized : false,
 	readyFunctions : [],
 	components : {},
-	games: [],
 	
-	//==== Classes
+//==== Classes
+
 	Component : function(c){
 		this.fileName = c;
 		this.name = null;
 		this.isLoaded = false;
 		this.isInstalled = false;	
 	},
-	Game : function(options){
-		if (typeof options === 'string') {
-			options = {name: options};
-		} else {
-			options = options || {};
-		}
-		this.name = options.name || "Game made with RocketBoots";
-		
-		this.init(options);
-	},
 	
-	//==== Functions
-	makeGame : function (options) {
-		var g = new this.Game(options);
-		this.games.push(g);
-		return g;
-	},
-	hasComponent: function (componentClass) {
-		if (typeof RocketBoots[componentClass] == "function") {
-			return true;
-		} else {
-			return false;
-		}
-	},
+//==== General Functions
+
 	loadScript : function(url, callback){
 		//console.log("Loading script", url);
 		// http://stackoverflow.com/a/7719185/1766230
@@ -56,6 +36,16 @@ var RocketBoots = {
 		t.parentNode.insertBefore(s, t);
 		return this;
 	},
+
+//==== Component Functions
+
+	hasComponent: function (componentClass) {
+		if (typeof RocketBoots[componentClass] == "function") {
+			return true;
+		} else {
+			return false;
+		}
+	},	
 	installComponent : function(fileName, componentClassName, componentClass, requirements, callback){
 		var o = this;
 		if (!o.areComponentsLoaded(requirements)) {
@@ -128,6 +118,9 @@ var RocketBoots = {
 		console.log("RB Components Installed: " + componentsInstalledCount + "/" + componentCount);
 		return (componentsInstalledCount >= componentCount);
 	},
+
+//==== Ready and Init Functions
+
 	ready : function(callback){
 		if (typeof callback == "function") {
 			if (this.isInitialized) {
@@ -153,13 +146,18 @@ var RocketBoots = {
 	},
 	init : function(attempt){
 		var o = this;
-		if (typeof attempt == "undefined") attempt = 0;
+		if (typeof attempt == "undefined") {
+			attempt = 0;
+		}
 		attempt++;
 		//console.log("RB Init", attempt);
 		if (attempt > 200) {
 			console.error("Could not initialize RocketBoots");
 			return false;
 		}
+
+		// Load default components
+		this.loadComponents(["Game"]);
 
 		if (typeof $ == "undefined") {
 			if (attempt == 1) {
@@ -194,111 +192,5 @@ var RocketBoots = {
 	}
 
 };
-
-//======================================================= Game Functions ======
-
-RocketBoots.Game.prototype.init = function(options){
-	//console.log("Initializing Game");
-	var g = this;
-	
-	g._addDefaultComponents(options);
-	g._addStages(options.stages);
-	g._addDefaultStates();
-	return this;
-}
-
-RocketBoots.Game.prototype._addDefaultComponents = function(options){
-	this._addComponent("sounds", "SoundCannon")
-		._addComponent("images", "ImageOverseer")
-		._addComponent("state", "StateMachine")	
-		._addComponent("looper", "Looper")
-		//._addComponent("timeCount", "TimeCount")
-		//._addComponent("incrementer", "Incrementer")
-		._addComponent("dice", "Dice")
-		._addComponent("keyboard", "Keyboard")
-		._addComponent("physics", "Physics")
-		._addComponent("entity", "Entity")
-		._addComponent("world", "World", options.world);
-		// *** stage?
-	return this;
-};
-
-RocketBoots.Game.prototype._addComponent = function(gameCompName, componentClass, arg){
-	if (RocketBoots.hasComponent(componentClass)) {
-		//console.log("RB adding component", gameCompName, "to the game using class", componentClass, "and arguments:", arg);
-		this[gameCompName] = new RocketBoots[componentClass](arg);
-	} else {
-		//console.warn(componentClass, "not found as a RocketBoots component");
-	}
-	return this;
-};
-
-RocketBoots.Game.prototype._addDefaultStates = function () {
-	var g = this;
-	// Setup default states (mostly menu controls)
-	var startMenu = function(){ 
-		$('header, footer').show();
-	};
-	var endMenu = function(){
-		$('header, footer').hide();
-	}
-	g.state.addStates({
-		"boot": { 		autoView: true, start: startMenu, end: endMenu },
-		"preload": { 	autoView: true, start: startMenu, end: endMenu },
-		"mainmenu": { 	autoView: true, start: startMenu, end: endMenu },
-		"new": { 		autoView: true, start: startMenu, end: endMenu },
-		"save": { 		autoView: true, start: startMenu, end: endMenu },
-		"load": { 		autoView: true, start: startMenu, end: endMenu },
-		"help": { 		autoView: true, start: startMenu, end: endMenu },
-		"settings": { 	autoView: true, start: startMenu, end: endMenu },
-		"credits": { 	autoView: true, start: startMenu, end: endMenu },
-		"share": { 		autoView: true, start: startMenu, end: endMenu },
-		"game": {}
-	});
-	/*
-	g.state.add("game",{
-		start : function(){
-			$('header, footer').hide();
-			this.$view.show();
-		}, end : function(){
-			$('header, footer').show();
-			this.$view.hide();
-		}
-	});
-	*/
-	g.state.start("boot");
-	//g.state.get("game").$view.show();
-
-	// Setup state transition clicks
-	$('.goto').click(function(){
-		var stateName = $(this).data("state");
-		g.state.transition(stateName);
-	});
-	return g;
-};
-
-
-RocketBoots.Game.prototype._addStages = function (stageData) {
-	var g = this;
-	g.stages = g.stages || [];
-	stageData = stageData || [];
-	// If the stage data exists and the element exists, then convert into real stages...
-	if (typeof RocketBoots.Stage === "function" && stageData.length > 0) {
-		$.each(stageData, function(i, iStageData){
-			if ($('#' + iStageData.id).length > 0) {
-				g.stages[i] = new RocketBoots.Stage(iStageData.id, iStageData.size);
-			}
-		});
-		g.stage = g.stages[0];
-	}
-	return g;
-};
-
-
-
-
-RocketBoots.Game.prototype.cloneDataObject = function (o) {
-	return JSON.parse(JSON.stringify(o));
-}
 
 RocketBoots.init();

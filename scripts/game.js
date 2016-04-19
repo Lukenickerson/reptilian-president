@@ -9,8 +9,10 @@ RocketBoots.loadComponents([
 	"physics",
 	"keyboard",
 	"world",
-	"stage"
+	"stage",
+	"image_overseer"
 ]).ready(function(rb){
+
 	var TWO_PI = 2 * Math.PI;
 	var WORLD_X = 640;
 	var WORLD_Y = 100;
@@ -34,7 +36,6 @@ RocketBoots.loadComponents([
 	var PERSUATION_POWER = 0.5;
 	var DISSUASION_POWER = -0.2;
 
-
 	var BASE_BEAM_STRENGTH = 0.1;
 	var DEADLY_BEAM_STRENGTH = 0.8;
 	var FEARFUL_BEAM_STRENGTH = 0.12;
@@ -44,7 +45,7 @@ RocketBoots.loadComponents([
 	var BEAM_RANGE = 70;
 	var BEAM_COOLDOWN_RATE = -0.01;
 
-	window.g = rb.makeGame({
+	window.g = new rb.Game({
 		"name": "Reptilian President",
 		"stages": [{
 			"id": "game-stage",
@@ -52,23 +53,23 @@ RocketBoots.loadComponents([
 		}],
 		"world": {
 			"dimensions": 2,
-			"trackTime": true,
+			//"trackTime": true,
 			"isBounded": true,
 			"size": {"x": WORLD_X, "y": WORLD_Y}
 		}
 	});
-	
-	g.coords = new rb.Coords();
+
 	
 	g.state.transition("preload");
-	/*
+	
+	//g.images = new rb.ImageBank();
 	g.images.load({
 		"dirt1" : "dirt1.png"
 		,"dirt2" : "dirt2.png"
 		,"grass1" : "grass1.png"
 		,"grass2" : "grass2.png"
 	});
-	*/
+	
 	g.state.transition("mainmenu");
 	
 
