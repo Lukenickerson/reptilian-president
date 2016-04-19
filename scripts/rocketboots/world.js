@@ -159,13 +159,13 @@
 			var y = this.min.y + (this.size.y / 2);
 			return new this.Coords(x,y);
 		}
-		World.prototype.getNearestEntity = function(pos, range, type){
+		World.prototype.getNearestEntity = function(type, pos, range){
 			var nearestEnt = null;
 			var nearestDistance = range;
 			// *** get a subset of all entities based on range?
 			// *** then only loop over them
 			//console.log("------\nLoop over", type);
-			this.loopOverEntities(type, function(entityIndex, ent){
+			this.loopOverEntitiesByType(type, function(entityIndex, ent){
 				var d = ent.pos.getDistance(pos);
 				//console.log(ent, d);
 				if (d < nearestDistance) {
@@ -178,8 +178,14 @@
 
 		// Others
 		World.prototype.loopOver = function(ents, fn){
-			for (var i = 0, el = ents.length; i < el; i++){
-				fn(i, ents[i]);
+			var i = ents.length;
+			while (i--) {
+				//console.log("Looping over ents", i);
+				if (ents[i] === null) {
+					//console.warn("Entity", i, "is null", ents);
+				} else {
+					fn(i, ents[i]);
+				}
 			}		
 		};
 
@@ -187,10 +193,11 @@
 			var ents;
 			var typeOfQuery = typeof query;
 			if (typeOfQuery === 'object') {
+				// TODO: fix this...
 				if (typeof query.x === 'number' && typeof query.y === 'number') {
 					if (typeof query.range === 'number') {
 						var center = new this.Coord(query.x, query.y);
-						return this.loopOverEntitiesWithinRange(center, query.range, fn);
+						return this.loopOverEntitiesWithinRange(query.type, center, query.range, fn);
 					}
 				}
 			} else if (typeOfQuery === 'string') {
@@ -198,30 +205,34 @@
 			}
 		};
 		World.prototype.loopOverEntitiesByType = function(type, fn) {
-			if (typeof this.entities[type] == 'object') {
+			var ents;
+			if (typeof this.entities[type] === 'object') {
 				ents = this.entities[type];
-				for (var i = 0, el = ents.length; i < el; i++){
-					if (ents[i] != null) {
-						fn(i, ents[i]);
-					}
-				}
+				this.loopOver(ents, fn);
 			} else {
 				console.warn("Cannot find type", type);
 			}
 			return ents;
 		};
-		World.prototype.loopOverEntitiesWithinRange = function(center, range, fn) {
-			var ent, entsFound = [];
-			for (var i = 0, el = ents.length; i < el; i++){
-				ent = ents[i];
-				if (ent === null) {
-					console.warn("entity", i, "is null");
-				} else if (center.getDistance(ent.pos) <= range) {
-					fn(i, ent);
-					entsFound.push(ent);
+
+		World.prototype.loopOverEntitiesWithinRange = function(type, center, range, fn) {
+			var i, ent, entsFound = [];
+			if (typeof this.entities[type] === 'object') {
+				ents = this.entities[type];
+				i = ents.length;
+				while (i--) {
+					ent = ents[i];
+					if (ent === null) {
+						console.warn("Entity", i, "of type '", type, "' is null");
+					} else if (center.getDistance(ent.pos) <= range) {
+						fn(i, ent);
+						entsFound.push(ent);
+					}					
 				}
+			} else {
+				console.warn("Cannot find type", type);
 			}
-			return entsFound;
+			return ents;
 		};
 
 		World.prototype.keepCoordsInBounds = function(coords){

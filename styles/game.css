@@ -1,7 +1,13 @@
 body {
 	background-color: #222034;
+	font-family: 'Press Start 2P';
 
 	/* background: -webkit-radial-gradient(50% 50%, circle farthest-corner, #666, #333); */
+}
+
+#booting-up-rocket-boots {
+	background: transparent;
+    color: #9BADB7;
 }
 
 .state.game {
@@ -65,7 +71,6 @@ header {
 
 .game h2 {
 	display: block;
-	font-family: 'Press Start 2P';
 	color: #9BADB7;
 }
 
@@ -76,7 +81,6 @@ header {
 	font-size: 80%;
 	color: #9BADB7;
 	text-align: left;
-	font-family: 'Press Start 2P';
 	line-height: 1.5em;
 }
 .credits {

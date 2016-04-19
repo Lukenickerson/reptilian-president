@@ -22,7 +22,7 @@
 	Game.prototype.init = function(options){
 		//console.log("Initializing Game");
 		var g = this;
-		
+
 		g._addDefaultComponents(options);
 		g._addStages(options.stages);
 		g._addDefaultStates();
@@ -38,7 +38,7 @@
 			//._addComponent("incrementer", "Incrementer")
 			._addComponent("dice", "Dice")
 			._addComponent("keyboard", "Keyboard")
-			._addComponent("physics", "Physics")
+			//._addComponent("physics", "Physics")
 			._addComponent("entity", "Entity")
 			._addComponent("world", "World", options.world);
 			// *** stage?

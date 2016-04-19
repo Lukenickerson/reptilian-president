@@ -47,6 +47,10 @@ RocketBoots.loadComponents([
 
 	window.g = new rb.Game({
 		"name": "Reptilian President",
+		instantiateComponents: [
+			{"state": "StateMachine"},
+			{}
+		],
 		"stages": [{
 			"id": "game-stage",
 			"size": {"x": WORLD_X, "y": WORLD_Y}
@@ -59,16 +63,17 @@ RocketBoots.loadComponents([
 		}
 	});
 
-	
+	/*
 	g.state.transition("preload");
 	
-	//g.images = new rb.ImageBank();
+	g.images = new rb.ImageBank();
 	g.images.load({
 		"dirt1" : "dirt1.png"
 		,"dirt2" : "dirt2.png"
 		,"grass1" : "grass1.png"
 		,"grass2" : "grass2.png"
 	});
+	*/
 	
 	g.state.transition("mainmenu");
 	
@@ -249,12 +254,12 @@ RocketBoots.loadComponents([
 
 		addBeamStrength(0.05);
 		
-		g.ufo.target = g.world.getNearestEntity(beamPos, ADBUCT_RANGE, "citizens");
+		g.ufo.target = g.world.getNearestEntity("citizens", beamPos, ADBUCT_RANGE);
 		if (g.ufo.target && g.ufo.beamStrength >= DEADLY_BEAM_STRENGTH) {
 			g.world.removeEntity(g.ufo.target);
 			g.ufo.humanSuits += 1;
 			replenishHumanSuit();
-			g.world.loopOverEntitiesWithinRange(beamPos, NOTICE_RANGE, function(i, ent){
+			g.world.loopOverEntitiesWithinRange("citizens", beamPos, NOTICE_RANGE, function(i, ent){
 				ent.panic(g.ufo);
 			});
 		}

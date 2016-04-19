@@ -135,7 +135,8 @@
 		if (remGroups.indexOf("all") != -1) {	
 			remGroups = ent.groups.join("/").split("/");
 		}
-		console.log("Remove groups", remGroups, ent.groups);
+		console.log("Take", (ent.name || "entity"), "out of groups", remGroups, ent.groups);
+		
 		var remGroup = "", remGroupIndex = -1;
 		// Loop over groups to remove
 		for (var g = 0; g < remGroups.length; g++){
@@ -147,10 +148,12 @@
 				// Remove from group array
 				//this.entities[remGroup].splice(remGroupIndex, 1);
 				// ^ can't splice this out or all the indices get messed up
+				// Another option:
 				this.entities[remGroup][remGroupIndex] = null;
 				// FIXME *** ^ This might cause memory issues??
+
 				// Remove from entity's properties
-				console.log(ent.groups, ent.groups.indexOf(remGroup));
+				//console.log(ent.groups, ent.groups.indexOf(remGroup));
 				ent.groups.splice( ent.groups.indexOf(remGroup), 1 );
 				delete ent.groupIndices[remGroup];
 			}
