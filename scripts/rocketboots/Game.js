@@ -26,6 +26,8 @@
 		g._addDefaultComponents(options);
 		g._addStages(options.stages);
 		g._addDefaultStates();
+		g._setupTransitionLinks();
+		g.state.start("boot");
 		return this;
 	}
 
@@ -59,14 +61,15 @@
 		var g = this;
 		// Setup default states (mostly menu controls)
 		var startMenu = function(){ 
-			$('header, footer').show();
+			//$('header, footer').show();
 		};
 		var endMenu = function(){
-			$('header, footer').hide();
+			//$('header, footer').hide();
 		}
 		g.state.addStates({
 			"boot": { 		autoView: true, start: startMenu, end: endMenu },
 			"preload": { 	autoView: true, start: startMenu, end: endMenu },
+			/*
 			"mainmenu": { 	autoView: true, start: startMenu, end: endMenu },
 			"new": { 		autoView: true, start: startMenu, end: endMenu },
 			"save": { 		autoView: true, start: startMenu, end: endMenu },
@@ -75,6 +78,7 @@
 			"settings": { 	autoView: true, start: startMenu, end: endMenu },
 			"credits": { 	autoView: true, start: startMenu, end: endMenu },
 			"share": { 		autoView: true, start: startMenu, end: endMenu },
+			*/
 			"game": {}
 		});
 		/*
@@ -88,9 +92,14 @@
 			}
 		});
 		*/
-		g.state.start("boot");
+		
 		//g.state.get("game").$view.show();
 
+		return g;
+	};
+
+	Game.prototype._setupTransitionLinks = function () {
+		var g = this;
 		// Setup state transition clicks
 		$('.goto').click(function(){
 			var stateName = $(this).data("state");
