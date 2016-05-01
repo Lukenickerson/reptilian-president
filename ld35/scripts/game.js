@@ -356,7 +356,7 @@ RocketBoots.loadComponents([
 				ctx.fillStyle = ent.lipColor;
 			}
 			ctx.fillRect(stageXYOffset.x + 3 + ent.facingBit, stageXYOffset.y + 5, ent.mouthSize, 1);
-			ctx.save();
+			//ctx.save();
 			// hat
 			if (ent.wearingHat) {
 				ctx.fillStyle = ent.hatColor;

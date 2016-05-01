@@ -216,7 +216,7 @@
 		ctx.mozImageSmoothingEnabled = o.smoothImage;
 		ctx.oImageSmoothingEnabled = o.smoothImage;
 
-		ctx.save();
+		//ctx.save();
 		//ctx.scale(2, 2);
 		// Loop over entities and draw them
 		for (i = 0; i < o.entitiesArray.length; i++){
