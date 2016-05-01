@@ -208,7 +208,9 @@
 			ents = [],
 			ent = {},
 			i, j;
+		ctx.save();
 		ctx.clearRect(0, 0, o.size.x, o.size.y);
+		ctx.restore();
 		ctx.fillStyle = '#ffff66';
 		ctx.strokeStyle = '#000000';
 		ctx.imageSmoothingEnabled = o.smoothImage; // http://stackoverflow.com/questions/18547042/resizing-a-canvas-image-without-blurring-it
@@ -216,12 +218,14 @@
 		ctx.mozImageSmoothingEnabled = o.smoothImage;
 		ctx.oImageSmoothingEnabled = o.smoothImage;
 
-		ctx.save();
+		//ctx.save(); // TODO: needed?
 		//ctx.scale(2, 2);
+
 		// Loop over entities and draw them
-		for (i = 0; i < o.entitiesArray.length; i++){
+		entCount = o.entitiesArray.length;
+		for (i = 0; i < entCount; i++){
 			ent = o.entitiesArray[i];
-			if (ent != null) {
+			if (ent !== null) {
 				//console.log(ent);
 				o.drawEntity(ent);
 			}
@@ -233,6 +237,8 @@
 			}
 			*/
 		}
+
+		//ctx.restore(); // TODO: needed?
 		// Draw a grid
 		o.drawGrid(20);
 	};
@@ -250,7 +256,7 @@
 		ctx.layer = this; // TODO: better way to do this?
 		//console.log("PosX", ent.pos.x, "PosY", ent.pos.y, "stageXY", stageXY, "stageXYOffset", stageXYOffset);
 		
-		//ctx.save();
+		//ctx.save(); // TODO: needed?
 		//ctx.translate(this.element.width/2, this.element.height/2);
 		//ctx.rotate(90 *Math.PI/180);
 		
@@ -292,7 +298,7 @@
 		}
 		*/
 		
-		//ctx.restore();
+		//ctx.restore(); // TODO: needed?
 		
 		/*
 		ctx.strokeStyle = ent.color;
