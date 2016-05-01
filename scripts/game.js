@@ -45,6 +45,8 @@ RocketBoots.loadComponents([
 	var BEAM_RANGE = 70;
 	var BEAM_COOLDOWN_RATE = -0.01;
 
+	var WIN_VOTE_PERCENT = 50;
+
 	window.g = new rb.Game({
 		"name": "Reptilian President",
 		instantiateComponents: [
@@ -73,9 +75,9 @@ RocketBoots.loadComponents([
 		,"grass1" : "grass1.png"
 		,"grass2" : "grass2.png"
 	});
-	*/
+	*/	
 	
-	g.state.transition("mainmenu");
+	//g.state.transition("mainmenu");
 	
 
 //==== States and Keys
@@ -97,55 +99,22 @@ RocketBoots.loadComponents([
 						"x": 	placeFlag,
 						"z": 	speech,
 						"SPACE": speech,
-						"ESC": 	escMenu
+						"ESC": 	escMenu,
+						"p": 	pause
 					}
 				});
 				g.stage.camera.follow(g.character.pos).lockY(31);
+				g.mainLoop.start();
 				g.meltingLoop.start();
 				g.speechLoop.start();
 			},
 			end: function(){
 				g.keyboard.clear();
 				g.stage.camera.stop();
+				g.mainLoop.stop();
 				g.meltingLoop.stop();
 				g.speechLoop.stop();
 			}			
-		},
-		"beaming-up": {
-			viewName: "game",
-			start: function(){
-				g.keyboard.setup({
-					keyDownActions: {
-						"2": beamDown,
-						"TAB": beamDown,
-						"z": beamDown,
-						"ESC": escMenu
-					}
-				});
-				g.stage.camera.follow(g.character.pos);
-			},
-			end: function(){
-				g.keyboard.clear();
-				g.stage.camera.stop();
-			}
-		},
-		"beaming-down": {
-			viewName: "game",
-			start: function(){
-				g.keyboard.setup({
-					keyDownActions: {
-						"2": beamUp,
-						"TAB": beamUp,
-						"z": beamUp,
-						"ESC": escMenu
-					}
-				});
-				g.stage.camera.follow(g.character.pos);
-			},
-			end: function(){
-				g.keyboard.clear();
-				g.stage.camera.stop();
-			}
 		},
 		"flying": {
 			viewName: "game",
@@ -160,24 +129,105 @@ RocketBoots.loadComponents([
 						"TAB": 		beamDown,
 						"x": 		abduct,
 						"z": 		beamDown,
-						"SPACE": 	abduct
+						"SPACE": 	abduct,
+						"p": 		pause
 					}
 				});
 				g.stage.camera.follow(g.ufo.pos).lockY(31);
-				replenishHumanSuit();
+				g.mainLoop.start();
 				g.ufoPowerLoop.start();
 			},
 			end: function(){
 				g.keyboard.clear();
 				g.stage.camera.stop();
+				g.mainLoop.stop();
 				g.ufoPowerLoop.stop();
 			}			
 		},
+		"beaming-up": {
+			viewName: "game",
+			start: function(){
+				// g.keyboard.setup({
+				// 	keyDownActions: {
+				// 		"2": beamDown,
+				// 		"TAB": beamDown,
+				// 		"z": beamDown,
+				// 		"ESC": escMenu
+				// 	}
+				// });
+				g.stage.camera.follow(g.character.pos);
+			},
+			end: function(){
+				// g.keyboard.clear();
+				g.stage.camera.stop();
+			}
+		},
+		"beaming-down": {
+			viewName: "game",
+			start: function(){
+				// g.keyboard.setup({
+				// 	keyDownActions: {
+				// 		"2": beamUp,
+				// 		"TAB": beamUp,
+				// 		"z": beamUp,
+				// 		"ESC": escMenu
+				// 	}
+				// });
+				g.stage.camera.follow(g.character.pos);
+			},
+			end: function(){
+				// g.keyboard.clear();
+				g.stage.camera.stop();
+			}
+		},
+		"win": {
+			start: function(){
+				g.notifiedOfWin = true;
+				g.keyboard.setup({
+					keyDownActions: { 
+						"TAB": goBack
+					},
+					preventDefault: ["SPACE", "UP", "DOWN", "LEFT", "RIGHT"]
+				});				
+			},
+			end: function(){
+				g.keyboard.clear();
+			}
+		},
+		"splash": {
+			start: function(){
+				g.keyboard.setup({
+					keyDownActions: { "ANY": gotoGame }
+				});
+			},
+			end: function(){
+				g.keyboard.clear();
+			}
+		},
+		"pause": {
+			viewName: "game",
+			start: function(){
+				g.keyboard.setup({
+					keyDownActions: { "ANY": goBack }
+				});
+			},
+			end: function(){
+				g.keyboard.clear();
+			}
+		}
 	});
 
 	g.notifiedOfWin = false;
 
-
+	function gotoGame(){
+		g.state.transition("walking");
+	}
+	function goBack () {
+		g.state.back();
+	}
+	function pause() {
+		g.state.transition("pause");
+	}
 	function moveLeft () {
 		g.character.move({x: -1, y: 0});
 	}
@@ -251,30 +301,22 @@ RocketBoots.loadComponents([
 	}
 	function abduct () {
 		var beamPos = new rb.Coords(g.ufo.pos.x, GROUND_Y);
+		var fleshHarvested = 0;
 
 		addBeamStrength(0.05);
 		
 		g.ufo.target = g.world.getNearestEntity("citizens", beamPos, ADBUCT_RANGE);
 		if (g.ufo.target && g.ufo.beamStrength >= DEADLY_BEAM_STRENGTH) {
 			g.world.removeEntity(g.ufo.target);
-			g.ufo.humanSuits += 1;
-			replenishHumanSuit();
+			fleshHarvested = 40 + g.dice.roll1d(20);
+			g.character.replenish(fleshHarvested);
 			g.world.loopOverEntitiesWithinRange("citizens", beamPos, NOTICE_RANGE, function(i, ent){
 				ent.panic(g.ufo);
 			});
 		}
 	}
-	function replenishHumanSuit () {
-		if (g.ufo.humanSuits > 0 && g.character.humanSuitDurability < 99) {
-			g.ufo.humanSuits -= 1;
-			g.character.replenish(100);
-		}
-	}
 
 
-
-
-	
 
 	
 //==== The things in the world
@@ -362,7 +404,7 @@ RocketBoots.loadComponents([
 				ctx.fillStyle = ent.lipColor;
 			}
 			ctx.fillRect(stageXYOffset.x + 3 + ent.facingBit, stageXYOffset.y + 5, ent.mouthSize, 1);
-			ctx.save();
+			//ctx.save();
 			// hat
 			if (ent.wearingHat) {
 				ctx.fillStyle = ent.hatColor;
@@ -468,7 +510,8 @@ RocketBoots.loadComponents([
 		}
 	}
 	Reptilian.prototype.replenish = function (n) {
-		g.character.humanSuitDurability = n;
+		this.humanSuitDurability += n;
+		this.humanSuitDurability = Math.min(this.humanSuitDurability, 100);		
 		this.skinColor = g.dice.selectRandom(SKIN_ARRAY);
 		this.wearingShirt = true;
 		this.wearingTie = true;
@@ -481,7 +524,7 @@ RocketBoots.loadComponents([
 		rb.Entity.call(this, options); // Use entity's constructor
 		this.name = options.name;
 		this.isABuilding = true;
-		this.color = "#9BADB7";
+		this.color = "#94A6B0"; // "#9BADB7";
 		//console.log(this.pos.y, this.getFootPos().y, GROUND_Y);
 		this.pos.y = GROUND_Y + this._halfSize.y;
 	};
@@ -493,7 +536,6 @@ RocketBoots.loadComponents([
 		rb.Entity.call(this, options); // Use entity's constructor
 		this.name = options.name;
 		this.isAVehicle = true;
-		this.humanSuits = 2;
 		this.beamStrength = 0.7;
 		this.maxBeamStrength = 10;
 		this.maxBeamWidth = 40;
@@ -547,7 +589,7 @@ RocketBoots.loadComponents([
 	g.ground.size.y = GROUND_Y;
 	g.ground.pos.x = g.world.min.x;
 	g.ground.pos.y = -1 * Math.ceil(g.ground.size.y/2) + GROUND_Y + 1;
-	g.ground.color = "#9BADB7";
+	g.ground.color = "#9BADB7"; // "#95A7B1";
 
 	/*
 	g.textureOverlay = new rb.Entity({
@@ -693,9 +735,8 @@ RocketBoots.loadComponents([
 			//s += party.name + ' ' + vp + '   ';
 			party.votePercent = Math.round((party.votes / pop) * 100);
 		});
-		if (g.parties[0].votePercent > 50 && !g.notifiedOfWin) {
-			alert("YOU GOT OVER 50% of THE VOTE.\nYOU WIN!");
-			g.notifiedOfWin = true;
+		if (g.parties[0].votePercent > WIN_VOTE_PERCENT && !g.notifiedOfWin) {
+			g.state.transition("win");
 		}
 		//console.log(s);
 		g.world.citizenCensus = census;
@@ -767,14 +808,20 @@ RocketBoots.loadComponents([
 		ctx.fillRect(stageXY.x - g.ufo._halfSize.x + 3, stageXY.y + 3, g.ufo.size.x - 6, 1);
 	};
 
+
+//==== Drawing Functions
 	
 
-//==== Setup the stages
-
-	var mainLayer = g.stage.addLayer();
-	mainLayer.connectEntities( g.world.entities.all );
-	g.stage.resize({x: 64, y: 64});
-	
+	function drawHorizontalLine (x1, y1, percent, barLength, color1, color2) {
+		var x2 = x1 + Math.ceil(barLength * (percent/100));
+		var y2 = y1 + 1;
+		//console.log(x1, y1, x2);
+		//mainLayer.drawStageLine(x1, y1, (x1 + barLength), y1, 1, "#9BADB7");
+		//mainLayer.drawStageLine(x1, y2, (x1 + barLength), y2, 1, "#9BADB7");
+		mainLayer.drawStageLine(x1, y1, x2, y1, 1, color1);
+		mainLayer.drawStageLine(x1, y2, x2, y2, 1, color2);
+		return x2;
+	}
 
 	function drawStats () {
 		var ctx = mainLayer.ctx;
@@ -783,38 +830,79 @@ RocketBoots.loadComponents([
 		var voteGreenPercent = 20;
 		var voteRedPercent = 25;
 		var voteBluePercent = 20;
-		var FULLBAR = 38;
-		var HALFBAR = 18;
+		var FULLBAR = 50;
+		var HALFBAR = 24;
+		var LEFT_X = 7;
 		var lastX;
-		function drawVerticalLine (x1, y1, percent, barLength, color1, color2) {
-			var x2 = x1 + Math.ceil(barLength * (percent/100));
-			var y2 = y1 + 1;
-			//console.log(x1, y1, x2);
-			//mainLayer.drawStageLine(x1, y1, (x1 + barLength), y1, 1, "#9BADB7");
-			//mainLayer.drawStageLine(x1, y2, (x1 + barLength), y2, 1, "#9BADB7");
-			mainLayer.drawStageLine(x1, y1, x2, y1, 1, color1);
-			mainLayer.drawStageLine(x1, y2, x2, y2, 1, color2);
-			return x2;
-		}
+		// Icons
+		drawVoteIcon(2, 1);
+		drawHumanSuitIcon(1, 5);
+		drawFearIcon(59, 5);
+
 		// Blank bars
-		drawVerticalLine(13, 5, 100, HALFBAR, "#9BADB7", "#9BADB7");
-		drawVerticalLine(33, 5, 100, HALFBAR, "#9BADB7", "#9BADB7");
-		drawVerticalLine(13, 1, 100, FULLBAR, "#9BADB7", "#9BADB7");
+		drawHorizontalLine(LEFT_X, 1, 100, FULLBAR, "#9BADB7", "#9BADB7"); 
+		drawHorizontalLine(LEFT_X, 5, 100, HALFBAR, "#9BADB7", "#9BADB7"); 
+		drawHorizontalLine(33, 5, 100, HALFBAR, "#9BADB7", "#9BADB7"); 
+		
 		// Stat bars
-		lastX = 13;
+		lastX = LEFT_X;
 		$.each(g.parties, function(i, party){
-			lastX = drawVerticalLine(lastX, 1, party.votePercent, FULLBAR, party.color1, party.color2);
+			lastX = drawHorizontalLine(lastX, 1, party.votePercent, FULLBAR, party.color1, party.color2);
 		});
-		drawVerticalLine(13, 5, suitPercent, HALFBAR, "#8F563B", "#663931");
-		drawVerticalLine(33, 5, fearPercent, HALFBAR, "#D9A066", "#DF7126");
+		drawHorizontalLine(LEFT_X, 5, suitPercent, HALFBAR, "#8F563B", "#663931");
+		drawHorizontalLine(33, 5, fearPercent, HALFBAR, "#D9A066", "#DF7126");
 		/*
-		lastX = drawVerticalLine(13, 1, voteGreenPercent, FULLBAR, "#6ABE30", "#37946E");
-		lastX = drawVerticalLine(lastX, 1, voteRedPercent, FULLBAR, "#D95763", "#AC3232");
-		lastX = drawVerticalLine(lastX, 1, voteBluePercent, FULLBAR, "#5B6EE1", "#306082");
+		lastX = drawHorizontalLine(13, 1, voteGreenPercent, FULLBAR, "#6ABE30", "#37946E");
+		lastX = drawHorizontalLine(lastX, 1, voteRedPercent, FULLBAR, "#D95763", "#AC3232");
+		lastX = drawHorizontalLine(lastX, 1, voteBluePercent, FULLBAR, "#5B6EE1", "#306082");
 		*/
 	}
 
-	g.loop = new rb.Looper(function(){
+	function drawHumanSuitIcon (x, y) {
+		var ctx = mainLayer.ctx;
+		ctx.fillStyle = (g.character.isReptileForm ? "#6ABE30" : "#8F563B");
+		ctx.fillRect(x + 1, y, 3, 2); // body
+		ctx.fillRect(x, y + 1, 5, 1); // arms
+		ctx.fillRect(x + 1, y + 2, 1, 1); // legs
+		ctx.fillRect(x + 3, y + 2, 1, 1);
+		/*		
+		ctx.fillRect(x + 1, y, 2, 3); // body
+		ctx.fillRect(x, y + 1, 4, 1); // arms
+		ctx.fillRect(x, y + 3, 1, 1); // legs
+		ctx.fillRect(x + 3, y + 3, 1, 1);
+		*/
+	}
+
+	function drawVoteIcon (x, y) {
+		var ctx = mainLayer.ctx;
+		ctx.fillStyle = "#37946E";
+		ctx.fillRect(x, y, 1, 2);
+		ctx.fillRect(x + 1, y + 2, 1, 1);
+		ctx.fillRect(x + 2, y + 1, 1, 1);
+		ctx.fillRect(x + 3, y, 1, 1);
+	}
+
+	function drawFearIcon (x, y) {
+		var ctx = mainLayer.ctx;
+		ctx.fillStyle = "#D9A066"; //"#DF7126";
+		ctx.fillRect(x, y, 3, 1);
+		ctx.fillRect(x, y + 1, 2, 1);
+		ctx.fillRect(x, y + 2, 1, 1);
+		/*
+		ctx.fillRect(x, y, 1, 2);
+		ctx.fillRect(x, y + 3, 1, 1);
+		*/
+	}
+
+	
+
+//==== Setup the stages
+
+	var mainLayer = g.stage.addLayer();
+	mainLayer.connectEntities( g.world.entities.all );
+	g.stage.resize({x: 64, y: 64});
+
+	g.mainLoop = new rb.Looper(function(){
 		g.stage.draw();
 		drawStats();
 	});
@@ -855,7 +943,7 @@ RocketBoots.loadComponents([
 	}, 300);
 
 	
-	g.loop.addModulusAction(1, function(){
+	g.mainLoop.addModulusAction(1, function(){
 		candidateElectioneering();
 		collectPollingNumbers();
 		//console.log(g.character.speechRadius);
@@ -863,7 +951,7 @@ RocketBoots.loadComponents([
 	});
 
 	// Thinking loop
-	g.loop.addModulusAction(2, function(){
+	g.mainLoop.addModulusAction(2, function(){
 		g.world.loopOverEntities("citizens", function(i, ent){
 			var distFromCharacter = ent.pos.getDistance(g.character.pos);
 			var distFromUFO = ent.pos.getDistance(g.ufo.pos);
@@ -901,14 +989,14 @@ RocketBoots.loadComponents([
 	});
 
 	// Movement
-	g.loop.addModulusAction(5, function(){
+	g.mainLoop.addModulusAction(5, function(){
 		g.world.loopOverEntities("citizens", function(i, ent){
 			ent.moveToTarget();
 		});
 	});
 
 	// Blinking loop
-	g.loop.addModulusAction(5, function(){
+	g.mainLoop.addModulusAction(5, function(){
 		g.world.loopOverEntities("people", function(i, ent){
 			// Blinking
 			if (ent.blinkBit == 1) { 
@@ -918,17 +1006,14 @@ RocketBoots.loadComponents([
 			}
 		});
 	});
-
-	g.state.transition("game");
-	g.stage.draw();
 	
 	/*
 	g.stage.addClickEvent(function(p){ 
 		console.log("clicked world position", p);
 	});
 	*/
-	g.loop.start();
+
 	//g.stage = new rb.Stage("game-stage");
 
-	g.state.transition("game").transition("walking");
+	g.state.transition("game").transition("splash");
 });

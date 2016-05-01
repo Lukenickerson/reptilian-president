@@ -16,13 +16,11 @@
 		<p>Please wait...</p>
 	</div>
 
-	<!--
-	<header class="stateHeader goto" data-state="mainmenu">
-		<h1>Reptilian President</h1>
-		<div>Loading... If you're seeing this message for too long, there may have been an error.</div>
-		<p>Please reload the page (f5) a few times, that oughta fix it.</p>
+
+	<header>
+		<h1>Reptilian President <span class="version">v1.2</span></h1>
 	</header>
-	-->
+
 
 	<div class="state boot">
 		Booting Up Game...
@@ -31,10 +29,36 @@
 		Preloading Content...
 	</div>
 	
+	<div class="state splash">
+		<img src="images/title.png" class="keyboard-tap" data-keyboard-key="ANY" />
+		<div class="game-controls">
+			<button type="button" class="keyboard-tap" data-keyboard-key="ANY">Press any key to begin</button>
+		</div>
+	</div>
+
+	<div class="state win">
+		<img src="images/win.png" class="keyboard-tap" data-keyboard-key="ANY" />
+		<div class="game-controls">
+			<button type="button" class="keyboard-tap" data-keyboard-key="TAB">continue playing</button>
+		</div>
+		<p>
+			Reload the page (F5) to start over.
+		</p>
+	</div>	
+
 	<div class="state game">
-		<h2>Reptilian President</h2>
 
 		<div id="game-stage" class="stage"></div>
+
+		<div class="game-controls">
+			<button type="button" class="keyboard-tap" data-keyboard-key="LEFT">&lt;</button>
+			<button type="button" class="keyboard-tap" data-keyboard-key="RIGHT">&gt;</button>
+			<button type="button" class="keyboard-tap" data-keyboard-key="SPACE">space</button>
+			<button type="button" class="keyboard-tap" data-keyboard-key="TAB">tab</button>
+			<!-- <button type="button" class="game-control-2 goto" data-state="mainmenu">menu</button> -->
+		</div>
+	</div>
+
 		<div class="gameInfo instructions">
 			<p>Left/Right/A/D = Movement</p>
 			<p>Tab = beam up/down from UFO</p>
@@ -53,11 +77,14 @@
 			this won't make the humans panic too much.
 		</div>
 		<div class="credits gameInfo">
-			Developed in 48 hours for the
+			<p>
+			<a href="http://ludumdare.com/compo/ludum-dare-35/?action=preview&uid=17861" target="_blank">
+				Version 1.0 was originally developed
+				in 48 hours</a> for the
 			<a href="http://ludumdare.com/compo/ludum-dare-35/" target="_blank">Ludum Dare 35 game jam (theme "Shapeshift")</a>
 			and <a href="https://itch.io/jam/lowrezjam2016" target="_blank">Low Rez Jam (64x64 px)</a> 
-
-			<br>
+			</p>
+			<p>
 			by Luke Nickerson 
 			<a href="https://twitter.com/deathraygames" target="_blank" title="Go to the deathraygame twitter page">@deathraygames</a>
 			<br>
@@ -67,19 +94,15 @@
 				title="RocketBoots - Starter Kit for Web Games - visit the GitHub repo">
 				RocketBoots web game starter kit
 			</a>
-			<br>
-			Version 1.01 | &copy; 2016
+			</p>
+			<p>
+			&copy; 2016
+			</p>
 		</div>		
-		<!--
-		<div class="game-controls">
-			<button type="button" class="game-control-left">&lt;</button>
-			<button type="button" class="game-control-right">&gt;</button>
-			<button type="button" class="game-control-1">1</button>
-			<button type="button" class="game-control-2">2</button>
-			<button type="button" class="game-control-2 goto" data-state="mainmenu">menu</button>
-		</div>
-		-->
-	</div>
+
+
+
+	
 
 
 
