@@ -6,7 +6,9 @@
 (function(){
 	var Keyboard = function(){
 		this.keyDownActions = {};
+		this.keyPressActions = {};
 		this.keyUpActions = {};
+		this.preventDefault = [];
 		this._keyCodeMap = {
 			"9":	"TAB",
 
@@ -37,6 +39,7 @@
 			"68":	"d",
 			"69":	"e",
 
+			"80":	"p",
 			"81":	"q",
 
 			"83":	"s",
@@ -77,21 +80,40 @@
 	};
 
 	Keyboard.prototype._fireAction = function (key, keyActions) {
-		var action = this.keyDownActions[key];
+		var action = keyActions[key];
+		var anyKeyAction = keyActions['ANY'];
+		var didFindAction = false;
+		if (typeof anyKeyAction === 'function') {
+			//console.log("firing any-key action");
+			anyKeyAction(key);
+			didFindAction = true;
+		}
 		if (typeof action === 'function') {
+			//console.log("Firing action", key)
 			action(key);
+			didFindAction = true;
+		}
+		if (didFindAction) {
 			return true;
 		} else {
-			console.warn("KB action not found", key);
+			//console.warn("KB action not found", key);
 			return false;
 		}
 	};	
 
 	Keyboard.prototype.setup = function (options) {
 		var kb = this;
-		options = options || {};
-		options.keyDownActions = options.keyDownActions || {};
+		var RB$ = RocketBoots.$;
+		options = RB$.extend({
+			wasd: false,
+			keyDownActions: {},
+			keyPressActions: {},
+			keyUpActions: {},
+			preventDefault: []
+		}, options);
+
 		if (options.wasd) {
+			// TODO: Do for up and press also?
 			if (typeof options.keyDownActions["w"] !== 'function') {
 				options.keyDownActions["w"] = options.keyDownActions["UP"];
 			}
@@ -105,24 +127,57 @@
 				options.keyDownActions["d"] = options.keyDownActions["RIGHT"];
 			}
 		}
-		kb.keyDownActions = options.keyDownActions;
-		//console.log(kb.keyDownActions);
 		kb.clear();
-
-		$(document).on('keydown', function(e){
-			kb._fireAction(kb.getKeyFromKeyCode(e.which), options.keyDownActions);
-            //console.log(e.which);
-            if (!kb._isFunctionKey(e.which)) {
-				e.preventDefault();
+		kb.keyDownActions = options.keyDownActions;
+		kb.keyPressActions = options.keyPressActions;
+		kb.keyUpActions = options.keyUpActions;
+		kb.preventDefault = options.preventDefault;
+		
+		function handleKeyEvent (event, actions) {
+			var key = kb.getKeyFromKeyCode(event.which);
+			var fired = kb._fireAction(key, actions);
+			//console.log(event.which, key);
+			// TODO: optimize this... calling inArray on every event may be slow
+			if (fired || RB$.inArray(key, kb.preventDefault) > -1) {
+				event.preventDefault();
 			}
+			// if (!kb._isFunctionKey(e.which)) {
+			// 	e.preventDefault();
+			// }			
+		}
+
+		// See: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent
+		RB$(document).on('keydown', function(e){
+			handleKeyEvent(e, kb.keyDownActions);
+		}).on('keypress', function(e){
+			handleKeyEvent(e, kb.keyPressActions);
         }).on('keyup', function(e){
-            // ***
+        	handleKeyEvent(e, kb.keyUpActions);
+        });
+
+        // TODO: Make this more versatile and customizable
+        RB$('.keyboard-tap').on("click", function(e){
+        	var $clicked = RB$(this); //e.target);
+        	var key = $clicked.data("keyboard-key");
+        	//console.log("Click-Tapped", key);
+        	kb.tap(key);
+        });
+
+        RB$('.keyboard-hold').on("mousedown", function(e){	
+        	// TODO: Allow for holding down the mouse, using a timeout
+        }).on("mouseup", function(e){
+        	//console.log("mousedown", this);
         });
         return kb;
 	};
 
 	Keyboard.prototype.clear = function () {
-		$(document).off('keydown').off('keyup');
+		this.keyDownActions = {};
+		this.keyPressActions = {};
+		this.keyUpActions = {};		
+		RocketBoots.$(document).off("keydown").off("keyup").off("keypress");
+		RocketBoots.$('.keyboard-tap').off("click").off("mouseup").off("mousedown");
+		RocketBoots.$('.keyboard-hold').off("click").off("mouseup").off("mousedown");
 	};
 
 
