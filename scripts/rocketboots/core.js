@@ -7,6 +7,8 @@ var RocketBoots = {
 	_initTimer : null,
 	_MAX_ATTEMPTS : 300,
 	_BOOTING_ELEMENT_ID : "booting-up-rocket-boots",
+	_: null, // Lodash
+	$: null, // jQuery
 	
 //==== Classes
 
@@ -167,6 +169,13 @@ var RocketBoots = {
 		}
 		//console.log("RB Init", attempt, (areRequiredScriptsMissing ? "Waiting on required objects from external scripts" : ""));
 
+		if (!isJQueryUndefined) {
+			o.$ = $;
+		}
+		if (!isLodashUndefined) {
+			o._ = _;
+		}
+
 		function tryAgain () {
 			// Clear previous to stop multiple inits from happening
 			window.clearTimeout(o._initTimer);
@@ -194,12 +203,12 @@ var RocketBoots = {
 			} 
 			if (isLodashUndefined) {
 				o.loadScript("libs/lodash.min", function(){ });
-			}			
+			}
 		}
 
 		if (o.areAllComponentsLoaded() && !areRequiredScriptsMissing) {
 			console.log("RB Init - All scripts and components are loaded.", o.loadedScripts, " \nRunning Ready functions.\n");
-			$('#' + o._BOOTING_ELEMENT_ID).hide();
+			o.$('#' + o._BOOTING_ELEMENT_ID).hide();
 			o.runReadyFunctions();
 			o.isInitialized = true;
 			return true;
