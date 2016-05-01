@@ -12,6 +12,9 @@
 	var StateMachine = function(){
 		this.states = {};
 		this.currentState = null;
+		this.history = [];
+		this._pruneHistoryAt = 200;
+		this._pruneHistoryTo = 100;
 	}
 
 	// Getters
@@ -44,13 +47,28 @@
 		});
 		return sm;
 	};
-	StateMachine.prototype.transition = function(newState){
-		console.log("State Machine: Transition from " + this.currentState.name + " to " + newState);
+	StateMachine.prototype.transition = function(newState, recordHistory){
+		recordHistory = (typeof recordHistory === 'boolean') ? recordHistory : true;
+		console.log("State Machine: Transition from " + this.currentState.name + " to " + newState, (recordHistory ? "": "(no history)"));
 		this.currentState.end();
 		this.currentState = this.get(newState);
+		if (recordHistory) {
+			this.history.push(newState);
+			if (this.history.length > this._pruneHistoryAt) {
+				this.history.splice(0, (this._pruneHistoryAt - this._pruneHistoryTo));
+			}
+		}
 		this.currentState.start();
 		return this;
-	}
+	};
+	StateMachine.prototype.back = function() {
+		if (this.history.length >= 2) {
+			this.history.pop();
+			var end = this.history.length - 1;
+			this.transition(this.history[end], false);
+		}
+		return this;
+	};
 	StateMachine.prototype.start = function(stateName){
 		$('.state').hide();
 		this.currentState = this.get(stateName);
