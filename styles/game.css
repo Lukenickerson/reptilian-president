@@ -110,3 +110,43 @@ body > .game {
 .gameInfo a:hover {
 	color: #fff;
 }
+
+.tip {
+	position: absolute;
+	padding: 1em;
+	background: rgba(0,0,0,0.05);
+	color: #9BADB7;;
+	left: 20%;
+	top: 0;
+	width: 10em;
+	font-size: 11px;
+	text-align: center;
+}
+	.tip.votes { top: 10px; }
+	.tip.suit { top: 50px; }
+	.tip.fear { top: 50px; right: 20%; left: initial; }
+
+@media (max-width: 1500px) {
+	.tip { left: 10%; }
+	.tip.fear { right: 10%; }
+}
+@media (max-width: 1200px) {
+	.tip { left: 7%; }
+	.tip.fear { right: 7%; }
+}
+@media (max-width: 1100px) {
+	.tip { left: 4%; }
+	.tip.fear { right: 4%; }
+}
+@media (max-width: 1000px) {
+	.tip { left: 3%; }
+	.tip.fear { right: 3%; }
+}
+@media (max-width: 900px) {
+	.tip { left: 1%; display: none; }
+	.tip.fear { right: 1%; }
+}
+@media (max-width: 700px) {
+	.tip { left: 0%; }
+	.tip.fear { right: 0%; }
+}
